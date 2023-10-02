@@ -1,3 +1,12 @@
+function getValidNumber(promptMessage) {
+    let num = parseFloat(prompt(promptMessage));
+    while (isNaN(num)) {
+        alert('Ingrese un número válido.');
+        num = parseFloat(prompt(promptMessage));
+    }
+    return num;
+}
+
 class Calculator {
     constructor() {}
 
@@ -21,21 +30,13 @@ class Calculator {
         return num1 / num2;
     }
 
-    getValidNumber(promptMessage) {
-        let num = parseFloat(prompt(promptMessage));
-        while (isNaN(num)) {
-            alert('Ingrese un número válido.');
-            num = parseFloat(prompt(promptMessage));
-        }
-        return num;
-    }
-
     initCalculator() {
+        const operations = ['Sumar', 'Restar', 'Multiplicar', 'Dividir'];
         const operationFunctions = [this.add, this.subtract, this.multiply, this.divide];
         const operationSymbols = ['+', '-', '×', '÷'];
 
-        let num1 = this.getValidNumber('Ingrese el primer número:');
-        let num2 = this.getValidNumber('Ingrese el segundo número:');
+        let num1 = getValidNumber('Ingrese el primer número:');
+        let num2 = getValidNumber('Ingrese el segundo número:');
 
         let operationChoice = prompt('Seleccione una operación:\n1. Sumar\n2. Restar\n3. Multiplicar\n4. Dividir');
         operationChoice = parseInt(operationChoice);
