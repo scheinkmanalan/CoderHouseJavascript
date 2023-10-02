@@ -31,7 +31,6 @@ class Calculator {
     }
 
     initCalculator() {
-        const operations = ['Sumar', 'Restar', 'Multiplicar', 'Dividir'];
         const operationFunctions = [this.add, this.subtract, this.multiply, this.divide];
         const operationSymbols = ['+', '-', '×', '÷'];
 
