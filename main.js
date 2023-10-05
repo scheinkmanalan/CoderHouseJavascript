@@ -1,57 +1,103 @@
-function getValidNumber(promptMessage) {
-    let num = parseFloat(prompt(promptMessage));
-    while (isNaN(num)) {
-        alert('Ingrese un número válido.');
-        num = parseFloat(prompt(promptMessage));
-    }
-    return num;
-}
-
-class Calculator {
-    constructor() {}
-
-    add(num1, num2) {
-        return num1 + num2;
+class Cart {
+    constructor() {
+        this.cart = [];
+        this.total = 0;
     }
 
-    subtract(num1, num2) {
-        return num1 - num2;
+    addToCart(id, title, price, image) {
+        const modifiedTitle = title.replace(/['"]/g, ''); // Eliminar comillas simples y dobles
+        const item = { id, title: modifiedTitle, price, image };
+        this.cart.push(item);
+        this.total += price;
+        this.updateCart();
     }
 
-    multiply(num1, num2) { 
-        return num1 * num2;
-    }
-
-    divide(num1, num2) {
-        if (num2 === 0) {
-            alert('No se puede dividir por cero.');
-            return 'Error';
+    removeFromCart(id) {
+        const itemIndex = this.cart.findIndex(item => item.id === id);
+        if (itemIndex !== -1) {
+            this.total -= this.cart[itemIndex].price;
+            this.cart.splice(itemIndex, 1);
+            this.updateCart();
         }
-        return num1 / num2;
     }
 
-    initCalculator() {
-        const operations = ['Sumar', 'Restar', 'Multiplicar', 'Dividir'];
-        const operationFunctions = [this.add, this.subtract, this.multiply, this.divide];
-        const operationSymbols = ['+', '-', '×', '÷'];
+    updateCart() {
+        const cartList = document.getElementById('cart');
+        cartList.innerHTML = '';
 
-        let num1 = getValidNumber('Ingrese el primer número:');
-        let num2 = getValidNumber('Ingrese el segundo número:');
+        this.cart.forEach(item => {
+            const cartItem = document.createElement('li');
+            cartItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            cartItem.innerHTML = `
+                <img src="${item.image}" alt="${item.title}" style="max-width: 50px; max-height: 50px;">
+                ${item.title} - $${item.price}
+                <button class="btn btn-danger" onclick="removeFromCart(${item.id})">Eliminar</button>
+            `;
+            cartList.appendChild(cartItem);
+        });
 
-        let operationChoice = prompt('Seleccione una operación:\n1. Sumar\n2. Restar\n3. Multiplicar\n4. Dividir');
-        operationChoice = parseInt(operationChoice);
-
-        if (isNaN(operationChoice) || operationChoice < 1 || operationChoice > 4) {
-            alert('Ingrese una opción válida.');
-            return;
-        }
-
-        const result = operationFunctions[operationChoice - 1](num1, num2);
-
-        console.log(`Resultado: ${num1} ${operationSymbols[operationChoice - 1]} ${num2} = ${result}`);
-        alert(`Resultado: ${num1} ${operationSymbols[operationChoice - 1]} ${num2} = ${result}`);
+        const totalSpan = document.getElementById('total');
+        totalSpan.textContent = this.total.toFixed(2);
     }
 }
 
-const calculator = new Calculator();
-calculator.initCalculator();
+const apiUrl = 'https://fakestoreapi.com';
+
+const cart = new Cart();
+
+async function getAllProducts() {
+    try {
+        const response = await fetch(`${apiUrl}/products`);
+        const products = await response.json();
+        displayProducts(products);
+    } catch (error) {
+        console.error('Error al cargar productos:', error);
+    }
+}
+
+async function getProductDetails(productId) {
+    try {
+        const response = await fetch(`${apiUrl}/products/${productId}`);
+        const product = await response.json();
+        return product;
+    } catch (error) {
+        console.error('Error al cargar detalles del producto:', error);
+    }
+}
+
+function displayProducts(products) {
+    const productsContainer = document.getElementById('products');
+    productsContainer.innerHTML = '';
+
+    products.forEach(product => {
+        // Eliminar caracteres especiales del título
+        const modifiedTitle = product.title.replace(/['"]/g, ''); // Eliminar comillas simples y dobles
+
+        const productCol = document.createElement('div');
+        productCol.classList.add('col-md-4', 'mb-4');
+        productCol.innerHTML = `
+            <div class="card">
+                <img src="${product.image}" class="card-img-top" alt="${modifiedTitle}">
+                <div class="card-body">
+                    <h5 class="card-title">${modifiedTitle}</h5>
+                    <p class="card-text">$${product.price}</p>
+                    <button class="btn btn-primary" onclick="addToCart(${product.id}, '${modifiedTitle}', ${product.price}, '${product.image}')">Agregar al carrito</button>
+                </div>
+            </div>
+        `;
+        productsContainer.appendChild(productCol);
+    });
+}
+
+async function addToCart(productId, title, price, image) {
+    const product = await getProductDetails(productId);
+    if (product) {
+        cart.addToCart(product.id, product.title, product.price, product.image);
+    }
+}
+
+function removeFromCart(productId) {
+    cart.removeFromCart(productId);
+}
+
+getAllProducts();
