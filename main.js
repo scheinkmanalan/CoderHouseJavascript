@@ -1,7 +1,7 @@
 let cart;
 
 document.addEventListener("DOMContentLoaded", function () {
-    cart = new Cart();  
+    cart = new Cart();
     getAllProducts();
 });
 
@@ -47,22 +47,19 @@ class Cart {
             `;
             cartList.appendChild(cartItem);
         });
-    
+
         const cartTotalDiv = document.getElementById('cart-total');
         cartTotalDiv.textContent = `Total: $${this.total.toFixed(2)}`;
     }
-    
 
     saveToLocalStorage() {
         localStorage.setItem('myCart', JSON.stringify(this.cart));
     }
 
-    calculateTotal() {        
+    calculateTotal() {
         this.total = this.cart.reduce((acc, item) => acc + item.price, 0);
-        console.log(this.total);
     }
 }
-
 
 const mockProducts = [
     { id: 1, title: 'REMERA CON LOGO EN EL PECHO', price: 19.99, image: 'https://calvinargentina.vteximg.com.br/arquivos/ids/180228-650-709/2535I64292_430_1.jpg?v=637987751359400000' },
@@ -115,6 +112,13 @@ function displayProducts(products) {
             const price = parseFloat(button.getAttribute('data-price'));
             const image = button.getAttribute('data-image');
             cart.addToCart(productId, title, price, image);
+            Swal.fire({
+                title: 'Producto Agregado',
+                text: `Se ha agregado "${title}" al carrito.`,
+                icon: 'success',
+                timer: 1500,  // Auto-cierre después de 1.5 segundos
+                showConfirmButton: false
+            });
         });
     });
 }
