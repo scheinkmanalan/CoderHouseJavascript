@@ -1,21 +1,31 @@
+let cart;
+
+document.addEventListener("DOMContentLoaded", function () {
+    cart = new Cart();  
+    getAllProducts();
+});
+
 class Cart {
     constructor() {
-        //Recupero el carrito desde el localStorage (si existe)
-        const storedCart = localStorage.getItem('cart');
+        // Recupero el carrito desde el localStorage (si existe)
+        const storedCart = localStorage.getItem('myCart');
         this.cart = storedCart ? JSON.parse(storedCart) : [];
-        this.cart = [];
         this.total = 0;
+
+        this.calculateTotal();
+        this.updateCart();
     }
+
     addToCart(id, title, price, image) {
         const item = { id, title, price, image };
-        this.cart.push(item)
+        this.cart.push(item);
         this.total += price;
         this.updateCart();
         this.saveToLocalStorage();
     }
 
     removeFromCart(id) {
-        const index = this.cart.findIndex(product => product.id = id);
+        const index = this.cart.findIndex(product => product.id === id);
         if (index !== -1) {
             this.total -= this.cart[index].price;
             this.cart.splice(index, 1);
@@ -25,29 +35,33 @@ class Cart {
     }
 
     updateCart() {
-        const cartList = document.getElementById('cart');
+        const cartList = document.getElementById('cart-list');
         cartList.innerHTML = "";
         this.cart.forEach(item => {
             const cartItem = document.createElement('li');
             cartItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
             cartItem.innerHTML = `
-            <img src="${item.image}" alt="${item.title}" style="max-width: 50px; max-height: 50px;">
-            ${item.title} - $${item.price}
-            <button class="btn btn-danger" onclick="removeFromCart(${item.id})">Eliminar</button>
-        `;
+                <img src="${item.image}" alt="${item.title}" style="max-width: 50px; max-height: 50px;">
+                ${item.title} - $${item.price}
+                <button class="btn btn-danger remove-from-cart" data-id="${item.id}" data-price="${item.price}">Eliminar</button>
+            `;
             cartList.appendChild(cartItem);
         });
 
-        const totalSpan = document.getElementById('total');
-        totalSpan.textContent = this.total.toFixed(2);
+        const cartTotalDiv = document.getElementById('cart-total');
+        cartTotalDiv.textContent = `Total: $${this.total.toFixed(2)}`;
     }
 
     saveToLocalStorage() {
-        localStorage.setItem('cart', JSON.stringify(this.cart));
+        localStorage.setItem('myCart', JSON.stringify(this.cart));
+    }
+
+    calculateTotal() {        
+        this.total = this.cart.reduce((acc, item) => acc + item.price, 0);
+        console.log(this.total);
     }
 }
 
-const cart = new Cart();
 
 const mockProducts = [
     { id: 1, title: 'REMERA CON LOGO EN EL PECHO', price: 19.99, image: 'https://calvinargentina.vteximg.com.br/arquivos/ids/180228-650-709/2535I64292_430_1.jpg?v=637987751359400000' },
@@ -66,7 +80,7 @@ async function getAllProducts() {
 }
 
 async function getProductDetails(productId) {
-    return mockProducts.find(product => product.id = productId);
+    return mockProducts.find(product => product.id === productId);
 }
 
 function displayProducts(products) {
@@ -82,21 +96,34 @@ function displayProducts(products) {
                 <div class="card-body">
                     <h5 class="card-title">${product.title}</h5>
                     <p class="card-text">$${product.price}</p>
-                    <button class="btn btn-primary" onclick="addToCart(${product.id}, '${product.title}', ${product.price}, '${product.image}')">Agregar al carrito</button>
+                    <button class="btn btn-primary add-to-cart" data-id="${product.id}" data-title="${product.title}" data-price="${product.price}" data-image="${product.image}">Agregar al carrito</button>
                 </div>
             </div>
         `;
         productsContainer.appendChild(productCol);
     });
+
+    const addToCartButtons = document.querySelectorAll('.add-to-cart');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const productId = button.getAttribute('data-id');
+            const title = button.getAttribute('data-title');
+            const price = parseFloat(button.getAttribute('data-price'));
+            const image = button.getAttribute('data-image');
+            cart.addToCart(productId, title, price, image);
+        });
+    });
 }
 
-
-function addToCart(productId, title, price, image) {
-    cart.addToCart(productId, title, price, image);
+function removeCartItem(e) {
+    if (e.target.tagName === 'BUTTON') {
+        const productId = e.target.getAttribute('data-id');
+        cart.removeFromCart(productId);
+        cart.updateCart();
+    }
 }
 
-function removeFromCart(productId) {
-    cart.removeFromCart(productId);
-}
-
-getAllProducts();
+document.addEventListener('DOMContentLoaded', () => {
+    const cartList = document.getElementById('cart-list');
+    cartList.addEventListener('click', removeCartItem);
+});
