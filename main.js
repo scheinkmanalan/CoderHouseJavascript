@@ -35,7 +35,7 @@ class Cart {
     }
 
     updateCart() {
-        const cartList = document.getElementById('cart-list');
+        const cartList = document.getElementById('cart-list-modal');
         cartList.innerHTML = '';
         this.cart.forEach(item => {
             const cartItem = document.createElement('li');
@@ -48,7 +48,7 @@ class Cart {
             cartList.appendChild(cartItem);
         });
 
-        const cartTotalDiv = document.getElementById('cart-total');
+        const cartTotalDiv = document.getElementById('cart-total-modal');
         cartTotalDiv.textContent = `Total: $${this.total.toFixed(2)}`;
     }
 
@@ -58,8 +58,25 @@ class Cart {
 
     calculateTotal() {
         this.total = this.cart.reduce((acc, item) => acc + item.price, 0);
+        console.log(this.total);
+    }
+
+    openCartModal() {
+        $('#cartModal').modal('show');
+    }
+
+    closeCartModal() {
+        $('#cartModal').modal('hide');
+    }
+
+    checkout() {
+        this.cart = [];
+        this.total = 0;
+        this.updateCart();
+        this.closeCartModal();
     }
 }
+
 
 const mockProducts = [
     { id: 1, title: 'REMERA CON LOGO EN EL PECHO', price: 19.99, image: 'https://calvinargentina.vteximg.com.br/arquivos/ids/180228-650-709/2535I64292_430_1.jpg?v=637987751359400000' },
@@ -127,11 +144,20 @@ function removeCartItem(e) {
     if (e.target.tagName === 'BUTTON') {
         const productId = e.target.getAttribute('data-id');
         cart.removeFromCart(productId);
-        cart.updateCart();
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const cartList = document.getElementById('cart-list');
+    const cartList = document.getElementById('cart-list-modal');
     cartList.addEventListener('click', removeCartItem);
+    const checkoutButton = document.getElementById('checkout-button');
+    checkoutButton.addEventListener('click', () => {
+        cart.checkout();
+    });
 });
+
+const openCartButton = document.getElementById('cart-button');
+openCartButton.addEventListener('click', () => {
+    cart.openCartModal();
+});
+
