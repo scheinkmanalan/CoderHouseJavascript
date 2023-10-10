@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
     <title>Tienda en línea</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
     <header>
         <h1>Tienda en línea</h1>
@@ -20,34 +18,13 @@
         </div>
     </div>
 
-    <!-- Botón para abrir el modal del carrito -->
-    <div id="cart-button-container">
-        <img id="cart-button" src="img/cart.jpg" alt="Carrito de Compras">
-    </div>
-
-    <!-- Modal del carrito -->
-    <div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cartModalLabel">Carrito de Compras</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <ul id="cart-list-modal" class="list-group">
-                        <!-- Los elementos del carrito se mostrarán aquí -->
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                    <p id="cart-total-modal">Total: $0.00</p>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="checkout-button">Checkout</button>
-                </div>
-            </div>
-        </div>
+    <!-- Carrito de compras -->
+    <div class="cart-container">
+        <h2 class="mt-4">Carrito de compras</h2>
+        <ul id="cart-list" class="list-group">
+            <!-- Los elementos del carrito se mostrarán aquí -->
+        </ul>
+        <div id="cart-total" class="mb-3">Total: $0.00</div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -56,5 +33,4 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.2/dist/sweetalert2.all.min.js"></script>
     <script src="main.js"></script>
 </body>
-
 </html>
