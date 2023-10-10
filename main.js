@@ -36,21 +36,22 @@ class Cart {
 
     updateCart() {
         const cartList = document.getElementById('cart-list');
-        cartList.innerHTML = "";
+        cartList.innerHTML = '';
         this.cart.forEach(item => {
             const cartItem = document.createElement('li');
             cartItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
             cartItem.innerHTML = `
                 <img src="${item.image}" alt="${item.title}" style="max-width: 50px; max-height: 50px;">
-                ${item.title} - $${item.price}
+                ${item.title} - $${item.price.toFixed(2)}
                 <button class="btn btn-danger remove-from-cart" data-id="${item.id}" data-price="${item.price}">Eliminar</button>
             `;
             cartList.appendChild(cartItem);
         });
-
+    
         const cartTotalDiv = document.getElementById('cart-total');
         cartTotalDiv.textContent = `Total: $${this.total.toFixed(2)}`;
     }
+    
 
     saveToLocalStorage() {
         localStorage.setItem('myCart', JSON.stringify(this.cart));
@@ -88,14 +89,17 @@ function displayProducts(products) {
     productsContainer.innerHTML = '';
 
     products.forEach(product => {
+        // Limitar el título a 20 caracteres para evitar que se desalinien las cards
+        const limitedTitle = product.title.length > 20 ? product.title.slice(0, 20) + '...' : product.title;
+
         const productCol = document.createElement('div');
         productCol.classList.add('col-md-4', 'mb-4');
         productCol.innerHTML = `
             <div class="card">
-                <img src="${product.image}" class="card-img-top" alt="${product.title}">
+                <img src="${product.image}" class="card-img-fixed-height" alt="${limitedTitle}">
                 <div class="card-body">
-                    <h5 class="card-title">${product.title}</h5>
-                    <p class="card-text">$${product.price}</p>
+                    <h5 class="card-title">${limitedTitle}</h5>
+                    <p class="card-text">$${product.price.toFixed(2)}</p>
                     <button class="btn btn-primary add-to-cart" data-id="${product.id}" data-title="${product.title}" data-price="${product.price}" data-image="${product.image}">Agregar al carrito</button>
                 </div>
             </div>
