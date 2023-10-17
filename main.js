@@ -1,5 +1,5 @@
 let cart;
-let products = [];
+let products = []; // Variable para almacenar la lista de productos
 
 document.addEventListener("DOMContentLoaded", function () {
     cart = new Cart();
@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 class Cart {
     constructor() {
-        // Recupero el carrito desde el localStorage (si existe)
         const storedCart = localStorage.getItem('myCart');
         this.cart = storedCart ? JSON.parse(storedCart) : [];
         this.total = 0;
@@ -93,7 +92,6 @@ async function getCategories() {
             categorySelect.appendChild(option);
         });
 
-
     } catch (error) {
         console.error('Error al cargar categorías:', error);
     }
@@ -107,55 +105,36 @@ async function getAllProducts(category = '') {
         }
 
         const response = await fetch(url);
-        products = await response.json(); // Asigna la lista de productos
+        products = await response.json();
         displayProducts(products);
     } catch (error) {
         console.error('Error al cargar productos:', error);
     }
 }
 
-
-async function getProductDetails(productId) {
-    try {
-        const response = await fetch(`${apiUrl}/products/${productId}`);
-        const product = await response.json();
-        return product;
-    } catch (error) {
-        console.error('Error al cargar detalles del producto:', error);
-    }
-}
-
-function filterProducts(category, nameSearch) {
-    const filteredProducts = products.filter(product => {
-        const categoryMatch = !category || product.category === category;
-        const nameMatch = product.title.toLowerCase().startsWith(nameSearch);
-        return categoryMatch && nameMatch;
-    });
-    console.log(filteredProducts);
-    displayProducts(filteredProducts);
+function createProductElement(product) {
+    const limitedTitle = product.title.length > 20 ? product.title.slice(0, 20) + '...' : product.title;
+    const productCol = document.createElement('div');
+    productCol.classList.add('col-md-4', 'mb-4');
+    productCol.innerHTML = `
+        <div class="card">
+            <img src="${product.image}" class="card-img-fixed-height" alt="${limitedTitle}">
+            <div class="card-body">
+                <h5 class="card-title">${limitedTitle}</h5>
+                <p class="card-text">$${product.price.toFixed(2)}</p>
+                <button class="btn btn-primary add-to-cart" data-id="${product.id}" data-title="${product.title}" data-price="${product.price}" data-image="${product.image}">Agregar al carrito</button>
+            </div>
+        </div>
+    `;
+    return productCol;
 }
 
 function displayProducts(products) {
     const productsContainer = document.getElementById('products');
     productsContainer.innerHTML = '';
-
     products.forEach(product => {
-        // Limitar el título a 20 caracteres para evitar que se desalinien las cards
-        const limitedTitle = product.title.length > 20 ? product.title.slice(0, 20) + '...' : product.title;
-
-        const productCol = document.createElement('div');
-        productCol.classList.add('col-md-4', 'mb-4');
-        productCol.innerHTML = `
-            <div class="card">
-                <img src="${product.image}" class="card-img-fixed-height" alt="${limitedTitle}">
-                <div class="card-body">
-                    <h5 class="card-title">${limitedTitle}</h5>
-                    <p class="card-text">$${product.price.toFixed(2)}</p>
-                    <button class="btn btn-primary add-to-cart" data-id="${product.id}" data-title="${product.title}" data-price="${product.price}" data-image="${product.image}">Agregar al carrito</button>
-                </div>
-            </div>
-        `;
-        productsContainer.appendChild(productCol);
+        const productElement = createProductElement(product);
+        productsContainer.appendChild(productElement);
     });
 
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
@@ -170,7 +149,7 @@ function displayProducts(products) {
                 title: 'Producto Agregado',
                 text: `Se ha agregado "${title}" al carrito.`,
                 icon: 'success',
-                timer: 1500,  // Auto-cierre después de 1.5 segundos
+                timer: 1500,
                 showConfirmButton: false
             });
         });
@@ -184,6 +163,22 @@ function removeCartItem(e) {
     }
 }
 
+function handleNameSearch() {
+    const selectElement = document.getElementById('categorySelect');
+    const selectedCategory = selectElement.value;
+    const nameSearch = document.getElementById('nameSearch').value.toLowerCase();
+    filterProducts(selectedCategory, nameSearch);
+}
+
+function filterProducts(category, nameSearch) {
+    const filteredProducts = products.filter(product => {
+        const categoryMatch = !category || product.category === category;
+        const nameMatch = product.title.toLowerCase().startsWith(nameSearch);
+        return categoryMatch && nameMatch;
+    });
+    displayProducts(filteredProducts);
+}
+
 function handleCategoryChange() {
     const selectElement = document.getElementById('categorySelect');
     const selectedCategory = selectElement.value;
@@ -192,13 +187,6 @@ function handleCategoryChange() {
     filterProducts(selectedCategory, nameSearch);
 }
 
-
-function handleNameSearch() {
-    const selectElement = document.getElementById('categorySelect');
-    const selectedCategory = selectElement.value;
-    const nameSearch = document.getElementById('nameSearch').value.toLowerCase();
-    filterProducts(selectedCategory, nameSearch);
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     const cartList = document.getElementById('cart-list-modal');
@@ -213,6 +201,3 @@ const openCartButton = document.getElementById('cart-button');
 openCartButton.addEventListener('click', () => {
     cart.openCartModal();
 });
-
-
-
