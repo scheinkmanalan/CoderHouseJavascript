@@ -1,7 +1,7 @@
 let cart;
 
 document.addEventListener("DOMContentLoaded", function () {
-    cart = new Cart();  
+    cart = new Cart();
     getAllProducts();
 });
 
@@ -35,7 +35,7 @@ class Cart {
     }
 
     updateCart() {
-        const cartList = document.getElementById('cart-list');
+        const cartList = document.getElementById('cart-list-modal');
         cartList.innerHTML = '';
         this.cart.forEach(item => {
             const cartItem = document.createElement('li');
@@ -47,41 +47,56 @@ class Cart {
             `;
             cartList.appendChild(cartItem);
         });
-    
-        const cartTotalDiv = document.getElementById('cart-total');
+
+        const cartTotalDiv = document.getElementById('cart-total-modal');
         cartTotalDiv.textContent = `Total: $${this.total.toFixed(2)}`;
     }
-    
 
     saveToLocalStorage() {
         localStorage.setItem('myCart', JSON.stringify(this.cart));
     }
 
-    calculateTotal() {        
+    calculateTotal() {
         this.total = this.cart.reduce((acc, item) => acc + item.price, 0);
         console.log(this.total);
     }
+
+    openCartModal() {
+        $('#cartModal').modal('show');
+    }
+
+    closeCartModal() {
+        $('#cartModal').modal('hide');
+    }
+
+    checkout() {
+        this.cart = [];
+        this.total = 0;
+        this.updateCart();
+        this.closeCartModal();
+    }
 }
 
-
-const mockProducts = [
-    { id: 1, title: 'REMERA CON LOGO EN EL PECHO', price: 19.99, image: 'https://calvinargentina.vteximg.com.br/arquivos/ids/180228-650-709/2535I64292_430_1.jpg?v=637987751359400000' },
-    { id: 2, title: 'Calvin Klein Mens Chill Short Sleeve Crew Neck', price: 29.99, image: 'https://m.media-amazon.com/images/I/81LCqXmlyLL._AC_UL1500_.jpg' },
-    { id: 3, title: '2 Pack Remera Cuello Redondo Regular Fit', price: 19.99, image: 'https://calvinargentina.vteximg.com.br/arquivos/ids/184941-650-709/J30J320199_ACF_1.jpg?v=638212314385500000' },
-    { id: 4, title: 'REMERA BASICA VERDE CACTUS', price: 6.99, image: 'https://acdn.mitiendanube.com/stores/252/220/products/b0c16e0c-aecd-40ad-bdbe-45fa130ff3ea-a99cfcae1af73ba7a416935080957011-1024-1024.webp' },
-    { id: 5, title: 'REMERA SIN MANGAS', price: 39.99, image: 'https://calvinargentina.vteximg.com.br/arquivos/ids/192142-650-709/J20J218262_XL1_1.jpg?v=638310010172130000' },
-    { id: 6, title: 'REMERA DE MUJER', price: 41.99, image: 'https://imagesa1.lacoste.com/dw/image/v2/BCWL_PRD/on/demandware.static/-/Sites-master/default/dwd593e1dc/TF2562_7SY_24.jpg?imwidth=915&impolicy=product' },
-    { id: 7, title: 'REMERA CON LOGO', price: 39.99, image: 'https://calvinargentina.vteximg.com.br/arquivos/ids/191595-650-709/J30J320624_YAF_1.jpg?v=638307574424630000' },
-    { id: 8, title: 'REMERA MANGA CORTA DE CUELLO REDONDO Y LOGO', price: 11.99, image: 'https://calvinargentina.vteximg.com.br/arquivos/ids/192122-650-709/40HM878_540_1.jpg?v=638310009851400000' },
-
-];
+const apiUrl = 'https://fakestoreapi.com';
 
 async function getAllProducts() {
-    displayProducts(mockProducts);
+    try {
+        const response = await fetch(`${apiUrl}/products`);
+        const products = await response.json();
+        displayProducts(products);
+    } catch (error) {
+        console.error('Error al cargar productos:', error);
+    }
 }
 
 async function getProductDetails(productId) {
-    return mockProducts.find(product => product.id === productId);
+    try {
+        const response = await fetch(`${apiUrl}/products/${productId}`);
+        const product = await response.json();
+        return product;
+    } catch (error) {
+        console.error('Error al cargar detalles del producto:', error);
+    }
 }
 
 function displayProducts(products) {
@@ -115,6 +130,13 @@ function displayProducts(products) {
             const price = parseFloat(button.getAttribute('data-price'));
             const image = button.getAttribute('data-image');
             cart.addToCart(productId, title, price, image);
+            Swal.fire({
+                title: 'Producto Agregado',
+                text: `Se ha agregado "${title}" al carrito.`,
+                icon: 'success',
+                timer: 1500,  // Auto-cierre después de 1.5 segundos
+                showConfirmButton: false
+            });
         });
     });
 }
@@ -123,11 +145,20 @@ function removeCartItem(e) {
     if (e.target.tagName === 'BUTTON') {
         const productId = e.target.getAttribute('data-id');
         cart.removeFromCart(productId);
-        cart.updateCart();
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const cartList = document.getElementById('cart-list');
+    const cartList = document.getElementById('cart-list-modal');
     cartList.addEventListener('click', removeCartItem);
+    const checkoutButton = document.getElementById('checkout-button');
+    checkoutButton.addEventListener('click', () => {
+        cart.checkout();
+    });
 });
+
+const openCartButton = document.getElementById('cart-button');
+openCartButton.addEventListener('click', () => {
+    cart.openCartModal();
+});
+
