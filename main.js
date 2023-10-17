@@ -2,6 +2,7 @@ let cart;
 
 document.addEventListener("DOMContentLoaded", function () {
     cart = new Cart();
+    getCategories();
     getAllProducts();
 });
 
@@ -58,7 +59,6 @@ class Cart {
 
     calculateTotal() {
         this.total = this.cart.reduce((acc, item) => acc + item.price, 0);
-        console.log(this.total);
     }
 
     openCartModal() {
@@ -79,15 +79,40 @@ class Cart {
 
 const apiUrl = 'https://fakestoreapi.com';
 
-async function getAllProducts() {
+async function getCategories() {
     try {
-        const response = await fetch(`${apiUrl}/products`);
+        const response = await fetch(`${apiUrl}/products/categories`);
+        const categories = await response.json();
+        const categorySelect = document.getElementById('categorySelect');
+
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
+        });
+
+
+    } catch (error) {
+        console.error('Error al cargar categorías:', error);
+    }
+}
+
+async function getAllProducts(category = '') {
+    try {
+        let url = `${apiUrl}/products`;
+        if (category) {
+            url += `/category/${category}`;
+        }
+
+        const response = await fetch(url);
         const products = await response.json();
         displayProducts(products);
     } catch (error) {
         console.error('Error al cargar productos:', error);
     }
 }
+
 
 async function getProductDetails(productId) {
     try {
@@ -148,6 +173,13 @@ function removeCartItem(e) {
     }
 }
 
+async function handleCategoryChange() {
+    const selectElement = document.getElementById('categorySelect');
+    const selectedCategory = selectElement.value;
+    await getAllProducts(selectedCategory); 
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const cartList = document.getElementById('cart-list-modal');
     cartList.addEventListener('click', removeCartItem);
@@ -161,4 +193,6 @@ const openCartButton = document.getElementById('cart-button');
 openCartButton.addEventListener('click', () => {
     cart.openCartModal();
 });
+
+
 
