@@ -15,23 +15,28 @@
     </header>
 
     <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Menú desplegable para filtrar por categoría -->
+                <label for="categorySelect">Filtrar por Categoría:</label>
+                <select id="categorySelect" onchange="handleCategoryChange()" class="form-control">
+                    <option value="">Todas las categorías</option>
+                    <!-- Opciones de categorías se cargarán aquí -->
+                </select>
+            </div>
+            <div class="col-md-6">
+                <!-- Botón para abrir el modal del carrito -->
+                <div id="cart-button-container" class="text-right">
+                    <img id="cart-button" src="img/cart.jpg" alt="Carrito de Compras" style="cursor: pointer;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
         <div class="row" id="products">
             <!-- Los productos se cargarán aquí -->
         </div>
-    </div>
-    
-    <!-- Menú desplegable para filtrar por categoría -->
-    <div class="container mt-4">
-        <label for="categorySelect">Filtrar por Categoría:</label>
-        <select id="categorySelect" onchange="handleCategoryChange()">
-            <option value="">Todas las categorías</option>
-            <!-- Opciones de categorías se cargarán aquí -->
-        </select>
-    </div>
-
-    <!-- Botón para abrir el modal del carrito -->
-    <div id="cart-button-container">
-        <img id="cart-button" src="img/cart.jpg" alt="Carrito de Compras">
     </div>
 
     <!-- Modal del carrito -->
