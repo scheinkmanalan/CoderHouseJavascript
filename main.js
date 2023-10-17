@@ -1,4 +1,5 @@
 let cart;
+let products = [];
 
 document.addEventListener("DOMContentLoaded", function () {
     cart = new Cart();
@@ -106,7 +107,7 @@ async function getAllProducts(category = '') {
         }
 
         const response = await fetch(url);
-        const products = await response.json();
+        products = await response.json(); // Asigna la lista de productos
         displayProducts(products);
     } catch (error) {
         console.error('Error al cargar productos:', error);
@@ -122,6 +123,16 @@ async function getProductDetails(productId) {
     } catch (error) {
         console.error('Error al cargar detalles del producto:', error);
     }
+}
+
+function filterProducts(category, nameSearch) {
+    const filteredProducts = products.filter(product => {
+        const categoryMatch = !category || product.category === category;
+        const nameMatch = product.title.toLowerCase().startsWith(nameSearch);
+        return categoryMatch && nameMatch;
+    });
+    console.log(filteredProducts);
+    displayProducts(filteredProducts);
 }
 
 function displayProducts(products) {
@@ -173,12 +184,21 @@ function removeCartItem(e) {
     }
 }
 
-async function handleCategoryChange() {
+function handleCategoryChange() {
     const selectElement = document.getElementById('categorySelect');
     const selectedCategory = selectElement.value;
-    await getAllProducts(selectedCategory); 
+    const nameSearch = '';
+    document.getElementById('nameSearch').value = ''; // Limpia el campo de búsqueda
+    filterProducts(selectedCategory, nameSearch);
 }
 
+
+function handleNameSearch() {
+    const selectElement = document.getElementById('categorySelect');
+    const selectedCategory = selectElement.value;
+    const nameSearch = document.getElementById('nameSearch').value.toLowerCase();
+    filterProducts(selectedCategory, nameSearch);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const cartList = document.getElementById('cart-list-modal');

@@ -24,7 +24,12 @@
                     <!-- Opciones de categorías se cargarán aquí -->
                 </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <!-- Campo de búsqueda por nombre -->
+                <label for="nameSearch">Buscar por Nombre:</label>
+                <input type="text" id="nameSearch" class="form-control" oninput="handleNameSearch()">
+            </div>
+            <div class="col-md-2">
                 <!-- Botón para abrir el modal del carrito -->
                 <div id="cart-button-container" class="text-right">
                     <img id="cart-button" src="img/cart.jpg" alt="Carrito de Compras" style="cursor: pointer;">
