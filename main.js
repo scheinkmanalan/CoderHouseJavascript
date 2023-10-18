@@ -93,7 +93,11 @@ async function getCategories() {
         });
 
     } catch (error) {
-        console.error('Error al cargar categorías:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al cargar categorias',
+            text: error.message
+        });
     }
 }
 
@@ -108,7 +112,11 @@ async function getAllProducts(category = '') {
         products = await response.json();
         displayProducts(products);
     } catch (error) {
-        console.error('Error al cargar productos:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al cargar productos',
+            text: error.message
+        });
     }
 }
 
@@ -171,12 +179,20 @@ function handleNameSearch() {
 }
 
 function filterProducts(category, nameSearch) {
-    const filteredProducts = products.filter(product => {
-        const categoryMatch = !category || product.category === category;
-        const nameMatch = product.title.toLowerCase().startsWith(nameSearch);
-        return categoryMatch && nameMatch;
-    });
-    displayProducts(filteredProducts);
+    try {
+        const filteredProducts = products.filter(product => {
+            const categoryMatch = !category || product.category === category;
+            const nameMatch = product.title.toLowerCase().startsWith(nameSearch);
+            return categoryMatch && nameMatch;
+        });
+        displayProducts(filteredProducts);
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al filtrar productos',
+            text: error.message
+        });
+    }
 }
 
 function handleCategoryChange() {
